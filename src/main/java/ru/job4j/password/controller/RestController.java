@@ -1,6 +1,7 @@
 package ru.job4j.password.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -17,18 +18,26 @@ public class RestController {
     @Autowired
     private RestTemplate rest;
 
-    private static final String SAVE = "http://localhost:8080/passport/save/";
-    private static final String ID = "http://localhost:8080/passport/{id}";
-    private static final String UPDATE = "http://localhost:8080/passport/update/";
-    private static final String DELETE = "http://localhost:8080/passport/delete/{id}";
-    private static final String FIND = "http://localhost:8080/passport/findAll/";
-    private static final String SERIA = "http://localhost:8080/passport/find?seria={seria}";
-    private static final String UNAVAILABLE = "http://localhost:8080/passport/unavailable/";
-    private static final String REPLACEABLE = "http://localhost:8080/passport/replaceable/";
+    @Value("${save}")
+    private String save;
+    @Value("${id}")
+    private String numId;
+    @Value("${update}")
+    private String update;
+    @Value("${delete}")
+    private String delete;
+    @Value("${find}")
+    private String find;
+    @Value("${seria}")
+    private String seria;
+    @Value("${unavailable}")
+    private String unavailable;
+    @Value("${replaceable}")
+    private String replaceable;
 
     @PostMapping("/save")
     public ResponseEntity<Passport> save(@RequestBody Passport passport) {
-        Passport ps = rest.postForObject(SAVE, passport, Passport.class);
+        Passport ps = rest.postForObject(save, passport, Passport.class);
         return new ResponseEntity<Passport>(
                 ps,
                 HttpStatus.CREATED
@@ -37,26 +46,26 @@ public class RestController {
 
     @GetMapping("/{id}")
     public ResponseEntity<Passport> findById(@PathVariable int id) {
-        rest.getForObject(ID, Passport.class, id);
+        rest.getForObject(numId, Passport.class, id);
         return ResponseEntity.ok().build();
     }
 
     @PutMapping("/update")
     public ResponseEntity<Void> update(@RequestBody Passport passport) {
-        rest.put(UPDATE, passport);
+        rest.put(update, passport);
         return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable int id) {
-        rest.delete(DELETE, id);
+        rest.delete(delete, id);
         return ResponseEntity.ok().build();
     }
 
     @GetMapping("/findAll")
     public List<Passport> findAll() {
         return rest.exchange(
-                FIND,
+                find,
                 HttpMethod.GET,
                 null,
                 new ParameterizedTypeReference<List<Passport>>() {}
@@ -64,20 +73,20 @@ public class RestController {
     }
 
     @GetMapping("/find")
-    public List<Passport> findBySeries(@RequestParam int seria) {
+    public List<Passport> findBySeries(@RequestParam int series) {
         return rest.exchange(
-                SERIA,
+                seria,
                 HttpMethod.GET,
                 null,
                 new ParameterizedTypeReference<List<Passport>>() { },
-                seria
+                series
         ).getBody();
     }
 
     @GetMapping("/unavailable")
     public List<Passport> findUnAvailable() {
         return rest.exchange(
-                UNAVAILABLE,
+                unavailable,
                 HttpMethod.GET,
                 null,
                 new ParameterizedTypeReference<List<Passport>>() { }
@@ -87,7 +96,7 @@ public class RestController {
     @GetMapping("/replaceable")
     public List<Passport> findReplaceable() {
         return rest.exchange(
-                REPLACEABLE,
+                replaceable,
                 HttpMethod.GET,
                 null,
                 new ParameterizedTypeReference<List<Passport>>() { }

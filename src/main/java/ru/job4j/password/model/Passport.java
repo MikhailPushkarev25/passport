@@ -3,6 +3,7 @@ package ru.job4j.password.model;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import javax.persistence.*;
+import javax.validation.constraints.Size;
 import java.util.Calendar;
 
 @Entity
@@ -16,8 +17,10 @@ public class Passport {
 
     private String surname;
 
+    @Column(unique = true)
     private int seria;
 
+    @Column(unique = true)
     private int number;
 
     @Temporal(TemporalType.TIMESTAMP)
