@@ -13,9 +13,9 @@ public interface PassportRepository extends CrudRepository<Passport, Integer> {
 
     List<Passport> findBySeria(int series);
 
-    @Query("from Passport where calendar < current_timestamp")
+    @Query("from Passport where expirationDate < current_timestamp")
     List<Passport> findUnAvailable();
 
-    @Query("from Passport where calendar between current_timestamp and :current")
-    List<Passport> findReplaceable(@Param("current") Calendar calendar);
+    @Query("from Passport where expirationDate between current_timestamp and :current")
+    List<Passport> findReplaceable(@Param("current") Calendar expirationDate);
 }

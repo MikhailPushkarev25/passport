@@ -18,26 +18,12 @@ public class RestController {
     @Autowired
     private RestTemplate rest;
 
-    @Value("${save}")
-    private String save;
-    @Value("${id}")
-    private String numId;
-    @Value("${update}")
-    private String update;
-    @Value("${delete}")
-    private String delete;
-    @Value("${find}")
-    private String find;
-    @Value("${seria}")
-    private String seria;
-    @Value("${unavailable}")
-    private String unavailable;
-    @Value("${replaceable}")
-    private String replaceable;
+    @Value("${api-uri}")
+    private String api_uri;
 
     @PostMapping("/save")
     public ResponseEntity<Passport> save(@RequestBody Passport passport) {
-        Passport ps = rest.postForObject(save, passport, Passport.class);
+        Passport ps = rest.postForObject(api_uri + "/save", passport, Passport.class);
         return new ResponseEntity<Passport>(
                 ps,
                 HttpStatus.CREATED
@@ -46,26 +32,26 @@ public class RestController {
 
     @GetMapping("/{id}")
     public ResponseEntity<Passport> findById(@PathVariable int id) {
-        rest.getForObject(numId, Passport.class, id);
+        rest.getForObject(api_uri + "/{id}", Passport.class, id);
         return ResponseEntity.ok().build();
     }
 
     @PutMapping("/update")
     public ResponseEntity<Void> update(@RequestBody Passport passport) {
-        rest.put(update, passport);
+        rest.put(api_uri + "/update", passport);
         return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable int id) {
-        rest.delete(delete, id);
+    @DeleteMapping("/delete")
+    public ResponseEntity<Void> delete(@RequestParam int id) {
+        rest.delete(api_uri + "/delete?id={id}", id);
         return ResponseEntity.ok().build();
     }
 
     @GetMapping("/findAll")
     public List<Passport> findAll() {
         return rest.exchange(
-                find,
+                api_uri + "/findAll",
                 HttpMethod.GET,
                 null,
                 new ParameterizedTypeReference<List<Passport>>() {}
@@ -75,7 +61,7 @@ public class RestController {
     @GetMapping("/find")
     public List<Passport> findBySeries(@RequestParam int series) {
         return rest.exchange(
-                seria,
+                api_uri + "/find?series={series}",
                 HttpMethod.GET,
                 null,
                 new ParameterizedTypeReference<List<Passport>>() { },
@@ -86,7 +72,7 @@ public class RestController {
     @GetMapping("/unavailable")
     public List<Passport> findUnAvailable() {
         return rest.exchange(
-                unavailable,
+                api_uri + "/unavailable",
                 HttpMethod.GET,
                 null,
                 new ParameterizedTypeReference<List<Passport>>() { }
@@ -96,7 +82,7 @@ public class RestController {
     @GetMapping("/replaceable")
     public List<Passport> findReplaceable() {
         return rest.exchange(
-                replaceable,
+                api_uri + "/replaceable",
                 HttpMethod.GET,
                 null,
                 new ParameterizedTypeReference<List<Passport>>() { }

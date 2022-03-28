@@ -4,6 +4,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 import ru.job4j.password.model.Passport;
 import ru.job4j.password.repository.PassportRepository;
 import ru.job4j.password.service.PassportService;
@@ -16,11 +17,9 @@ import java.util.List;
 public class PassportController {
 
     private final PassportService service;
-    private final PassportRepository repository;
 
-    public PassportController(PassportService service, PassportRepository repository) {
+    public PassportController(PassportService service) {
         this.service = service;
-        this.repository = repository;
     }
 
     @PostMapping("/save")
@@ -29,22 +28,23 @@ public class PassportController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Passport> findById(@Valid @PathVariable int id) {
-        var password = service.findById(id);
-        return new ResponseEntity<Passport>(
-                password.orElse(new Passport()),
+    public ResponseEntity<?> findById(@Valid @PathVariable int id) {
+        var passport = this.service.findById(id);
+        passport.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                "ResponseStatusException in findByIdController"));
+        return new ResponseEntity<>(
+                passport.orElse(new Passport()),
                 HttpStatus.OK
         );
     }
 
     @PutMapping("/update")
     public ResponseEntity<Void> update(@Valid @RequestBody Passport password) {
-        this.service.save(password);
-        return ResponseEntity.ok().build();
+        return new ResponseEntity<>(service.save(password) != null ? HttpStatus.OK : HttpStatus.NOT_FOUND);
     }
 
-    @DeleteMapping("/delete/{id}")
-    public ResponseEntity<Void> delete(@Valid @PathVariable int id) {
+    @DeleteMapping("/delete")
+    public ResponseEntity<Void> delete(@Valid @RequestParam int id) {
         service.delete(id);
         return ResponseEntity.ok().build();
     }

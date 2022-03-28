@@ -1,6 +1,8 @@
 package ru.job4j.password.service;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 import ru.job4j.password.model.Passport;
 import ru.job4j.password.repository.PassportRepository;
 import java.util.*;
@@ -23,9 +25,12 @@ public class PassportService {
     }
 
     public void delete(int id) {
-        Passport password = new Passport();
-        password.setId(id);
-        repository.delete(password);
+        Optional<Passport> passport = repository.findById(id);
+        if (passport.isPresent()) {
+            repository.delete(passport.get());
+        } else {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Passport not found");
+        }
     }
 
     public List<Passport> findAll() {

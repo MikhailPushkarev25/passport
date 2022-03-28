@@ -3,10 +3,13 @@ package ru.job4j.password.model;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import javax.persistence.*;
-import javax.validation.constraints.Size;
 import java.util.Calendar;
 
 @Entity
+@Table(uniqueConstraints =
+        {@UniqueConstraint
+                (name = "UniqueSeriaAndNumber", columnNames = {
+        "seria", "number"})})
 public class Passport {
 
     @Id
@@ -25,7 +28,7 @@ public class Passport {
 
     @Temporal(TemporalType.TIMESTAMP)
     @JsonFormat(pattern = "dd.mm.yyyy")
-    private Calendar calendar;
+    private Calendar expirationDate;
 
     public int getId() {
         return id;
@@ -68,10 +71,10 @@ public class Passport {
     }
 
     public Calendar getCalendar() {
-        return calendar;
+        return expirationDate;
     }
 
     public void setCalendar(Calendar calendar) {
-        this.calendar = calendar;
+        this.expirationDate = expirationDate;
     }
 }
