@@ -77,4 +77,16 @@ public class Passport {
     public void setCalendar(Calendar calendar) {
         this.expirationDate = expirationDate;
     }
+
+    @Override
+    public String toString() {
+        return "Passport{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", surname='" + surname + '\'' +
+                ", seria=" + seria +
+                ", number=" + number +
+                ", expirationDate=" + expirationDate.getTime() +
+                '}';
+    }
 }

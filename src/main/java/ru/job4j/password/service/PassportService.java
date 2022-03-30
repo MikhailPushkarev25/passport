@@ -1,6 +1,10 @@
 package ru.job4j.password.service;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import ru.job4j.password.model.Passport;
@@ -8,12 +12,16 @@ import ru.job4j.password.repository.PassportRepository;
 import java.util.*;
 
 @Service
+@EnableScheduling
 public class PassportService {
 
     private final PassportRepository repository;
+    private final KafkaTemplate<Integer, Passport> template;
 
-    public PassportService(PassportRepository repository) {
+    @Autowired
+    public PassportService(PassportRepository repository, KafkaTemplate<Integer, Passport> template) {
         this.repository = repository;
+        this.template = template;
     }
 
     public Passport save(Passport password) {
@@ -49,6 +57,16 @@ public class PassportService {
         Calendar calendar = new GregorianCalendar(TimeZone.getTimeZone("UTC"));
         calendar.roll(Calendar.MONTH, 3);
         return repository.findReplaceable(calendar);
+    }
+
+    @Scheduled(fixedDelayString = "${timeZone}")
+    public void scheduledFixed() {
+        List<Passport> unVal = findUnAvailable();
+        if (!unVal.isEmpty()) {
+            for (Passport passport : unVal) {
+                template.send("unAvailable", passport);
+            }
+        }
     }
 
 }
